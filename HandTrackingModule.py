@@ -3,7 +3,7 @@ import mediapipe as mp
 import time
 
 
-class HandDetector():
+class HandTrackingModule():
     def __init__(self, mode=False, maxHands=2, detectionConf=0.5, trackConf=0.5):
         self.mode = mode
         self.maxHands = maxHands
@@ -19,33 +19,45 @@ class HandDetector():
 
     def findHands(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        results = self.hands.process(imgRGB)
+        self.results = self.hands.process(imgRGB)
         # print(results.multi_hand_landmarks)
 
-        if results.multi_hand_landmarks:
-            for handLms in results.multi_hand_landmarks:
+        if self.results.multi_hand_landmarks:
+            for handLms in self.results.multi_hand_landmarks:
                 if draw:
                     self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
 
         return img
 
-                # for id, lm in enumerate(handLms.landmark):
-                #     height, width, channels = img.shape
-                #     channelx, channely = int(lm.x * width), int(lm.y * height)
-                #     print(id, channelx, channely)
-                #
-                #     cv2.circle(img, (channelx, channely), 25, (255, 0, 255), cv2.FILLED)
+    def findPosition(self, img, handNum=0, draw=True):
+
+        lmList = []
+
+        if self.results.multi_hand_landmarks:
+            myHand = self.results.multi_hand_landmarks[handNum]
+
+            for id, lm in enumerate(myHand.landmark):
+                height, width, channels = img.shape
+                channelx, channely = int(lm.x * width), int(lm.y * height)
+                lmList.append([id, channelx, channely])
+                if draw:
+                    cv2.circle(img, (channelx, channely), 10, (255, 0, 255), cv2.FILLED)
+
+        return lmList
 
 
 def main():
     cap = cv2.VideoCapture(0)
-    detector = HandDetector()
+    detector = HandTrackingModule()
     prevTime = 0
     currTime = 0
 
     while True:
         success, img = cap.read()
         img = detector.findHands(img)
+        lmList = detector.findPosition(img)
+        if len(lmList) != 0:
+            print(lmList[4])
 
         currTime = time.time()
         fps = 1 / (currTime - prevTime)
