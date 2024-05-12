@@ -17,32 +17,35 @@ class HandDetector():
                                         min_tracking_confidence=self.trackConf)
         self.mpDraw = mp.solutions.drawing_utils
 
+    def findHands(self, img, draw=True):
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = self.hands.process(imgRGB)
+        # print(results.multi_hand_landmarks)
 
+        if results.multi_hand_landmarks:
+            for handLms in results.multi_hand_landmarks:
+                if draw:
+                    self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
 
+        return img
 
-    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    results = hands.process(imgRGB)
-    #print(results.multi_hand_landmarks)
-
-    if results.multi_hand_landmarks:
-        for handLms in results.multi_hand_landmarks:
-            for id, lm in enumerate(handLms.landmark):
-                height, width, channels = img.shape
-                channelx, channely = int(lm.x * width), int(lm.y * height)
-                print(id, channelx, channely)
-
-                cv2.circle(img, (channelx, channely), 25, (255, 0, 255), cv2.FILLED)
-
-            mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
+                # for id, lm in enumerate(handLms.landmark):
+                #     height, width, channels = img.shape
+                #     channelx, channely = int(lm.x * width), int(lm.y * height)
+                #     print(id, channelx, channely)
+                #
+                #     cv2.circle(img, (channelx, channely), 25, (255, 0, 255), cv2.FILLED)
 
 
 def main():
     cap = cv2.VideoCapture(0)
+    detector = HandDetector()
     prevTime = 0
     currTime = 0
 
     while True:
         success, img = cap.read()
+        img = detector.findHands(img)
 
         currTime = time.time()
         fps = 1 / (currTime - prevTime)
