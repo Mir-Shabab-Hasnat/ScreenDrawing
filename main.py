@@ -15,13 +15,34 @@ for imgPath in myList:
 header = overlayList[0]
 
 vidCap = cv2.VideoCapture(0)
-vidCap.set(3, 1920)
+vidCap.set(3, 1280)
 vidCap.set(4, 720)
 
+detector = htm.HandTrackingModule(detectionConf=0.85)
+
 while True:
+    # Import Image
     success, img = vidCap.read()
+    img = cv2.flip(img, 1)
+
+    # Find Hand Landmarks
+
+    img = detector.findHands(img)
+    lmList = detector.findPosition(img, draw=False)
+
+    if len(lmList) != 0:
+        print(lmList)
+
+        topOfIndexFingerX, topOfIndexFingerY = lmList[8][1], lmList[8][2]
+        topOfMiddleFingerX, topOfMiddleFingerY = lmList[12][1], lmList[12][2]
+
+    # Check which fingers are up
+
+    # If Selection Mode - Two fingers up
+
+    # If Drawing Mode - Index Finger up
 
     # Setting the header image
-    img[0:200, 0:1920] = header
+    img[0:100, 0:1280] = header
     cv2.imshow("Image", img)
     cv2.waitKey(1)
