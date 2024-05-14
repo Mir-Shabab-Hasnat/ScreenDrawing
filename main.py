@@ -40,6 +40,11 @@ while True:
         print(fingers)
 
         # If Selection Mode - Two fingers up
+        if fingers[1] and fingers[2]:
+            print("Selection Mode")
+
+        if fingers[1] and fingers[2] == False:
+            print("Drawing Mode")
 
     # If Drawing Mode - Index Finger up
 
