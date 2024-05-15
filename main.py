@@ -29,7 +29,6 @@ while True:
 
     img = detector.findHands(img)
     lmList = detector.findPosition(img, draw=False)
-    print(lmList[8][1])
 
     if len(lmList) != 0:
         topOfIndexFingerX, topOfIndexFingerY = lmList[8][1], lmList[8][2]
@@ -48,10 +47,16 @@ while True:
 
             # Checking for click
             if topOfIndexFingerY < 100:
-                if 250 < topOfIndexFingerX < 450:
+                if 145 < topOfIndexFingerX < 215:
                     header = overlayList[1]
-                elif 550 < topOfIndexFingerX < 750:
+                elif 460 < topOfIndexFingerX < 510:
                     header = overlayList[2]
+                elif 780 < topOfIndexFingerX < 825:
+                    header = overlayList[3]
+                elif 1000 < topOfIndexFingerX < 1085:
+                    header = overlayList[4]
+                else:
+                    header = overlayList[0]
 
         if fingers[1] and fingers[2] == False:
             cv2.circle(img, (topOfIndexFingerX, topOfIndexFingerY),
