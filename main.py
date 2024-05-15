@@ -13,8 +13,9 @@ for imgPath in myList:
     overlayList.append(image)
 
 header = overlayList[0]
+drawColor = (255, 0, 255)
 
-vidCap = cv2.VideoCapture(0)
+vidCap = cv2.VideoCapture(1)
 vidCap.set(3, 1280)
 vidCap.set(4, 720)
 
@@ -40,27 +41,33 @@ while True:
 
         # If Selection Mode - Two fingers up
         if fingers[1] and fingers[2]:
-            cv2.rectangle(img, (topOfIndexFingerX, topOfIndexFingerY - 25),
-                          (topOfMiddleFingerX, topOfMiddleFingerY + 25),
-                          (255, 0, 255), cv2.FILLED)
+
             #print("Selection Mode")
 
             # Checking for click
             if topOfIndexFingerY < 100:
                 if 145 < topOfIndexFingerX < 215:
                     header = overlayList[1]
+                    drawColor = (0, 0, 255)
                 elif 460 < topOfIndexFingerX < 510:
                     header = overlayList[2]
+                    drawColor = (0, 255, 0)
+
                 elif 780 < topOfIndexFingerX < 825:
                     header = overlayList[3]
+                    drawColor = (255, 0, 0)
                 elif 1000 < topOfIndexFingerX < 1085:
                     header = overlayList[4]
-                else:
-                    header = overlayList[0]
+                    drawColor = (255, 255, 255)
+
+            cv2.rectangle(img, (topOfIndexFingerX, topOfIndexFingerY - 25),
+                          (topOfMiddleFingerX, topOfMiddleFingerY + 25),
+                          drawColor, cv2.FILLED)
+
 
         if fingers[1] and fingers[2] == False:
             cv2.circle(img, (topOfIndexFingerX, topOfIndexFingerY),
-                       15, (255, 0, 255), cv2.FILLED)
+                       15, drawColor, cv2.FILLED)
             #print("Drawing Mode")
 
     # If Drawing Mode - Index Finger up
