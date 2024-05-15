@@ -4,6 +4,8 @@ import time
 import os
 import HandTrackingModule as htm
 
+brushThickness = 15
+
 folderPath = "HeaderImages"
 myList = os.listdir(folderPath)
 
@@ -15,11 +17,15 @@ for imgPath in myList:
 header = overlayList[0]
 drawColor = (255, 0, 255)
 
+imageCanvas = np.zeros((720, 1280, 3), np.uint8)
+
 vidCap = cv2.VideoCapture(1)
 vidCap.set(3, 1280)
 vidCap.set(4, 720)
 
 detector = htm.HandTrackingModule(detectionConf=0.85)
+
+xprev, yprev = 0, 0
 
 while True:
     # Import Image
@@ -42,8 +48,6 @@ while True:
         # If Selection Mode - Two fingers up
         if fingers[1] and fingers[2]:
 
-            #print("Selection Mode")
-
             # Checking for click
             if topOfIndexFingerY < 100:
                 if 145 < topOfIndexFingerX < 215:
@@ -64,15 +68,22 @@ while True:
                           (topOfMiddleFingerX, topOfMiddleFingerY + 25),
                           drawColor, cv2.FILLED)
 
-
+        # Drawing Mode
         if fingers[1] and fingers[2] == False:
             cv2.circle(img, (topOfIndexFingerX, topOfIndexFingerY),
                        15, drawColor, cv2.FILLED)
-            #print("Drawing Mode")
+            if xprev == 0 and yprev == 0:
+                xprev, yprev = topOfIndexFingerX, topOfIndexFingerY
 
-    # If Drawing Mode - Index Finger up
+            cv2.line(img, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
+                     drawColor, brushThickness)
+            cv2.line(imageCanvas, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
+                     drawColor, brushThickness)
+
+            xprev, yprev = topOfIndexFingerX, topOfIndexFingerY
 
     # Setting the header image
     img[0:100, 0:1280] = header
     cv2.imshow("Image", img)
+    cv2.imshow("Canvas", imageCanvas)
     cv2.waitKey(1)
