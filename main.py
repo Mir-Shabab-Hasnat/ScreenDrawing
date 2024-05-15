@@ -5,6 +5,7 @@ import os
 import HandTrackingModule as htm
 
 brushThickness = 15
+eraserThickness = 50
 
 folderPath = "HeaderImages"
 myList = os.listdir(folderPath)
@@ -47,7 +48,7 @@ while True:
 
         # If Selection Mode - Two fingers up
         if fingers[1] and fingers[2]:
-
+            xprev, yprev = 0, 0
             # Checking for click
             if topOfIndexFingerY < 100:
                 if 145 < topOfIndexFingerX < 215:
@@ -62,7 +63,7 @@ while True:
                     drawColor = (255, 0, 0)
                 elif 1000 < topOfIndexFingerX < 1085:
                     header = overlayList[4]
-                    drawColor = (255, 255, 255)
+                    drawColor = (0, 0, 0)
 
             cv2.rectangle(img, (topOfIndexFingerX, topOfIndexFingerY - 25),
                           (topOfMiddleFingerX, topOfMiddleFingerY + 25),
@@ -75,15 +76,27 @@ while True:
             if xprev == 0 and yprev == 0:
                 xprev, yprev = topOfIndexFingerX, topOfIndexFingerY
 
-            cv2.line(img, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
-                     drawColor, brushThickness)
-            cv2.line(imageCanvas, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
-                     drawColor, brushThickness)
+            if drawColor == (0, 0, 0):
+                cv2.line(img, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
+                         drawColor, eraserThickness)
+                cv2.line(imageCanvas, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
+                         drawColor, eraserThickness)
+            else:
+                cv2.line(img, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
+                         drawColor, brushThickness)
+                cv2.line(imageCanvas, (xprev, yprev), (topOfIndexFingerX, topOfIndexFingerY),
+                         drawColor, brushThickness)
 
             xprev, yprev = topOfIndexFingerX, topOfIndexFingerY
 
+    imgGray = cv2.cvtColor(imageCanvas, cv2.COLOR_BGR2GRAY)
+    _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
+    imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
+    img = cv2.bitwise_and(img, imgInv)
+    img = cv2.bitwise_or(img, imageCanvas)
+
     # Setting the header image
     img[0:100, 0:1280] = header
+    #img = cv2.addWeighted(img, 0.5, imageCanvas, 0.5, 0)
     cv2.imshow("Image", img)
-    cv2.imshow("Canvas", imageCanvas)
     cv2.waitKey(1)
